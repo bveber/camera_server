@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rppal = "0.12"
+rppal = "0.18"
 warp = "0.3"
 tokio = { version = "1", features = ["full"] }
 image = "0.24"
-opencv = "0.60"
+opencv = { version = "0.91.3", features = ["clang-runtime"] }
