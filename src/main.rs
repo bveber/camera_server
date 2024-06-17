@@ -3,6 +3,12 @@ mod camera;
 use warp::Filter;
 use tokio::sync::Mutex;
 use std::sync::Arc;
+use warp::reject::Reject;
+
+#[derive(Debug)]
+struct CaptureError;
+
+impl Reject for CaptureError {}
 
 #[tokio::main]
 async fn main() {
@@ -38,7 +44,8 @@ async fn capture_handler(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let image = tokio::task::spawn_blocking(move || camera::capture_image())
         .await
-        .map_err(|_| warp::reject::custom("Failed to capture image"))??;
+        .map_err(|_| warp::reject::custom(CaptureError))?
+        .map_err(|_| warp::reject::custom(CaptureError))?;
 
     let mut data = image_data.lock().await;
     *data = Some(image);
