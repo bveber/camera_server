@@ -3,34 +3,31 @@ FROM balenalib/rpi-raspbian:latest
 
 # Set environment variables for non-interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
-ENV VCPKG_FORCE_SYSTEM_BINARIES=1
+# ENV VCPKG_FORCE_SYSTEM_BINARIES=1
 
 # Update and install required packages
 RUN apt-get update && \
     apt-get install -y \
     gcc-arm-linux-gnueabihf \
     g++-arm-linux-gnueabihf \
-    cmake \
-    pkg-config \
+    # cmake \
+    # pkg-config \
     curl \
     git \
-    build-essential \
-    llvm \
-    clang \
-    libclang-dev \
-    libopencv-dev \
-    curl zip unzip tar \
-    ninja-build && \
+    build-essential && \
+    # llvm \
+    # clang \
+    # libclang-dev \
+    # curl zip unzip tar \
+    # ninja-build && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Verify llvm-config is installed
-RUN which llvm-config
-RUN llvm-config --version
+# RUN apt-get install -y libopencv-dev
 
 # Set environment variables
-RUN export LLVM_CONFIG_PATH=$(which llvm-config)
-RUN export LIBCLANG_PATH=$(llvm-config --libdir)
+# RUN export LLVM_CONFIG_PATH=$(which llvm-config)
+# RUN export LIBCLANG_PATH=$(llvm-config --libdir)
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y

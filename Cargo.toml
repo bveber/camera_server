@@ -1,11 +1,8 @@
 [package]
 name = "security_camera"
 version = "0.1.0"
-edition = "2021"
 
 [dependencies]
-rppal = "0.18"
+rscam = "0.5"
 warp = "0.3"
 tokio = { version = "1", features = ["full"] }
-image = "0.24"
-opencv = { version = "0.89", features = ["clang-runtime"]}
