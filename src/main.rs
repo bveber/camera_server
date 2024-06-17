@@ -4,6 +4,7 @@ use warp::Filter;
 use tokio::sync::Mutex;
 use std::sync::Arc;
 use warp::reject::Reject;
+use futures_util::TryFutureExt;
 
 #[derive(Debug)]
 struct CaptureError;
@@ -42,27 +43,37 @@ fn with_image_data(
 async fn capture_handler(
     image_data: Arc<Mutex<Option<Vec<u8>>>>
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let image = tokio::task::spawn_blocking(move || camera::capture_image())
+    // Spawn blocking task and wait for it to complete
+    let image_result = tokio::task::spawn_blocking(move || camera::capture_image())
         .await
-        .map_err(|_| warp::reject::custom(CaptureError))?
         .map_err(|_| warp::reject::custom(CaptureError))?;
 
-    let mut data = image_data.lock().await;
-    *data = Some(image);
+    // Handle the inner result
+    let image = image_result.map_err(|_| warp::reject::custom(CaptureError)).await?;
 
+    // Store the image in the shared state
+    let mut data = image_data.lock().await;
+    *data = Some(image.clone());
+
+    println!("Image captured successfully, size: {} bytes", image.len());
+
+    // Return HTML response with the image
     Ok(warp::reply::html("<html><body><img src=\"/image\"></body></html>"))
 }
 
 async fn image_handler(
     image_data: Arc<Mutex<Option<Vec<u8>>>>
 ) -> Result<impl warp::Reply, warp::Rejection> {
+    // Lock and access the shared state
     let data = image_data.lock().await;
 
     if let Some(image) = &*data {
+        // Return the image as the response
         Ok(warp::http::Response::builder()
             .header("Content-Type", "image/jpeg")
             .body(image.clone()))
     } else {
+        // Return a 404 error if no image is available
         Err(warp::reject::not_found())
     }
 }
