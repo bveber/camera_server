@@ -6,6 +6,7 @@ use std::sync::Arc;
 use warp::reject::Reject;
 use futures_util::TryFutureExt;
 
+/// Custom error type for capture errors.
 #[derive(Debug)]
 struct CaptureError;
 
