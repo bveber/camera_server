@@ -17,8 +17,8 @@ use std::error::Error;
 /// * The RGB image fails to encode to JPEG.
 pub async fn capture_image() -> Result<Vec<u8>, Box<dyn Error>> {
     const FPS: u32 = 30;
-    const RESOLUTION_WIDTH: u32 = 640;
-    const RESOLUTION_HEIGHT: u32 = 480;
+    const RESOLUTION_WIDTH: u32 = 1280;
+    const RESOLUTION_HEIGHT: u32 = 240;
 
     println!("Attempting to open camera...");
     let mut camera: Camera = Camera::new("/dev/video0").map_err(|e: std::io::Error| {
@@ -113,7 +113,9 @@ fn yuyv_to_rgb(
         let x: u32 = (i as u32 % width) * 2;
         let y: u32 = i as u32 / width;
 
-        rgb_image.put_pixel(x, y, Rgb([r0 as u8, g0 as u8, b0 as u8]));
+        if x < width {
+            rgb_image.put_pixel(x, y, Rgb([r0 as u8, g0 as u8, b0 as u8]));
+        }
         if x + 1 < width {
             rgb_image.put_pixel(x + 1, y, Rgb([r1 as u8, g1 as u8, b1 as u8]));
         }
